@@ -18,19 +18,16 @@ public class Dictionary {
         FileParser parser = new FileParser();
         Validator validator = new Validator();
 
-        final String KNOWN_WORDS = "src/main/resources/words/known.txt";
-        final String UNKNOWN_WORDS = "src/main/resources/words/unknown.txt";
-
         long dictionaryHashMapLoadingTimeStart = System.currentTimeMillis();
         HashMap<String, Long> dictionaryHashMap = (HashMap<String, Long>) parser.parseDictionaryFileHashMap("dictionaries/large");
         long dictionaryHashMapLoadingTimeEnd = System.currentTimeMillis();
 
         long dictionaryTreeMapLoadingTimeStart = System.currentTimeMillis();
-        TreeMap<String, Long> dictionaryTreeMap = parser.parseDictionaryFileTree("src/main/resources/dictionaries/large");
+        TreeMap<String, Long> dictionaryTreeMap = parser.parseDictionaryFileTree("dictionaries/large");
         long dictionaryTreeMapLoadingTimeEnd = System.currentTimeMillis();
 
         long dictionaryTrieLoadingTimeStart = System.currentTimeMillis();
-        TreeMap<String, Long> dictionaryTrie = parser.parseDictionaryFileTree("src/main/resources/dictionaries/large");
+        TreeMap<String, Long> dictionaryTrie = parser.parseDictionaryFileTree("dictionaries/large");
         long dictionaryTrieLoadingTimeEnd = System.currentTimeMillis();
 
         long textsHashMapLoadingTimeStart = System.currentTimeMillis();
@@ -97,11 +94,11 @@ public class Dictionary {
         );
         long sherlockForEachTimeEnd = System.currentTimeMillis();
 
-        Files.write(Paths.get(KNOWN_WORDS),
+        Files.write(Paths.get("known.txt"),
                 allKnownWords.keySet().stream().collect(Collectors.toList()),
                 StandardCharsets.UTF_8);
 
-        Files.write(Paths.get(UNKNOWN_WORDS),
+        Files.write(Paths.get("unknown.txt"),
                 allUnKnownWords.keySet().stream().collect(Collectors.toList()),
                 StandardCharsets.UTF_8);
 

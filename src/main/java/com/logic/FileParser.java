@@ -1,10 +1,10 @@
 package com.logic;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
@@ -15,27 +15,32 @@ public class FileParser {
     }
 
     public Map<String, Long> parseDictionaryFileHashMap(String filePath) throws URISyntaxException, IOException {
-        Path path = Paths.get(getClass().getClassLoader().getResource(filePath).toURI());
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = Class.class.getClassLoader();
+        }
 
-        Map<String, Long> collect = Files.lines(path).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Files.lines(path).close();
-
-        return collect;
+        Map<String, Long> hashMap;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(filePath)))) {
+            hashMap = reader.lines().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        }
+        return hashMap;
     }
 
     public TreeMap<String, Long> parseDictionaryFileTree(String filePath) throws URISyntaxException, IOException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = Class.class.getClassLoader();
+        }
 
         TreeMap<String, Long> treeMap = new TreeMap<>();
-
-        Scanner scanner = new Scanner(new File(filePath));
-        while (scanner.hasNext()) {
-            String word = scanner.next();
-            Long count = treeMap.get(word);
-            count = (count == null ? 1 : count + 1);
-            treeMap.put(word, count);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(filePath)))) {
+            reader.lines().forEach(word -> {
+                Long count = treeMap.get(word);
+                count = (count == null ? 1 : count + 1);
+                treeMap.put(word, count);
+            });
         }
-        scanner.close();
-
         return treeMap;
     }
 
@@ -51,31 +56,16 @@ public class FileParser {
     }
 
     public Map<String, Long> parseBookFileHashMap(String filePath) throws URISyntaxException, IOException {
-        Path path = Paths.get(getClass().getClassLoader().getResource(filePath).toURI());
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = Class.class.getClassLoader();
+        }
 
-        Map<String, Long> collect = Files.lines(path)
+        BufferedReader reader = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(filePath)));
+        return reader.lines()
                 .map(String::trim)
                 .map(a -> a.split(" "))
                 .flatMap(Arrays::stream)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        Files.lines(path).close();
-
-        return collect;
     }
-
-//    public TreeMap<String, Long> parseBookFileTreeMap(String filePath) throws IOException {
-//
-//        TreeMap<String, Long> treeMap = new TreeMap<>();
-//
-//        Scanner scanner = new Scanner(new File(filePath));
-//        while (scanner.hasNext()) {
-//            String word = scanner.next();
-//            Long count = treeMap.get(word);
-//            count = (count == null ? 1 : count + 1);
-//            treeMap.put(word, count);
-//        }
-//        scanner.close();
-//
-//        return treeMap;
-//    }
 }
